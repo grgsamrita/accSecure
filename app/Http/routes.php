@@ -11,6 +11,12 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', 'Auth\AuthController@getIndex');
+Route::controller('auth', 'Auth\AuthController');
+
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::controllers([
+		'accountdata'	=>	'AccountdataController'
+	]);
 });
