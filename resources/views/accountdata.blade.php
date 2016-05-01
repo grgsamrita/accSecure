@@ -5,7 +5,7 @@
     <table class="main-table" style="width:100%; margin-top: 50px; border: none;" cellpadding="5" cellspacing="0">
         <thead>          
           <tr>
-            <th colspan="2px" class="notify" style="background-color: white; text-align: center; font-size:20px; color:red;" ></th>            
+            <th colspan="2px" class="notify" style="background-color: white; text-align: center; font-size:20px; color:green;" ></th>            
           </tr>          
         </thead>
 
@@ -26,33 +26,43 @@
 
 <!-- add account-->
 <div id="add-account">
+
 	<div class="container">
-      <div class="error"></div>
+      
 
       {!! Form::open(array('role'=>'form','class'=>'form-horizontal')) !!}
-
+        
         <div class="form-group">
-          <h3 class="h3-login">Add the following details</h3>
+          <div id="errors" style="margin-top:40px; margin-left:10px; color:red; "></div>
+          <div><h3 class="h3-login">Add the following details</h3></div>        
+          
         </div>
 
         <div class="form-group">
           {!! Form::label('Account ID:',null,['class'=>'control-label col-sm-2']) !!}  
           <div class="col-sm-10">
-            {!! Form::email('account',null,['id'=>'accountid','class' => 'form-control','placeholder'=>'Enter your emai ID']) !!}@if ($errors->has('account'))<p style="color:red;">{!!$errors->first('account')!!}</p>@endif
+            {!! Form::email('account',null,['id'=>'accountid','class' => 'form-control','placeholder'=>'Enter your email ID']) !!}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {!! Form::label('Account Name:',null,['class'=>'control-label col-sm-2']) !!}  
+          <div class="col-sm-10">
+            {!! Form::text('account_name',null,['id'=>'accountname','class' => 'form-control','placeholder'=>'eg: gmail, yahoo, outlook, facebook, etc.']) !!}
           </div>
         </div>
 
         <div class="form-group">
           {!! Form::label('Username:',null,['class'=>'control-label col-sm-2']) !!}  
           <div class="col-sm-10">
-            {!! Form::text('username',null,['id'=>'username','class' => 'form-control','placeholder'=>'Enter username']) !!}@if ($errors->has('username'))<p style="color:red;">{!!$errors->first('username')!!}</p>@endif
+            {!! Form::text('username',null,['id'=>'username','class' => 'form-control','placeholder'=>'Enter username']) !!}
           </div>
         </div>
 
         <div class="form-group">
           {!! Form::label('Password:',null,['class'=>'control-label col-sm-2']) !!}
           <div class="col-sm-10"> 
-            {!! Form::password('password',array('id'=>'password','class' => 'form-control','placeholder'=>'Enter password')) !!}@if ($errors->has('password'))<p style="color:red;">{!!$errors->first('password')!!}</p>@endif
+            {!! Form::password('password',array('id'=>'password','class' => 'form-control','placeholder'=>'Enter password')) !!}
           </div>
         </div>
         
@@ -72,13 +82,17 @@
   <h1>Accounts</h1>  
  
     <div class="box-content">
-      <table class="account-table" style="width:100%;" cellpadding="5" cellspacing="0">
+      <table class="account-table" style="margin-top: 50px; width:100%;" cellpadding="5" cellspacing="0">
         <thead>
+          <tr><th colspan="6px"><p id="success" style="color: green; text-align: center;"></th></tr></p>
           <tr>
             <th>Account</th>
+            <th>Account name</th>
             <th>Username</th>
-            <th>Password</th>
             <th></th>
+            <th></th>
+            <th></th>
+            
           </tr>
         </thead>
         <tbody>
@@ -86,18 +100,28 @@
           @foreach($accountdata as $eachdata)
           <tr>
             <td>
-                <p>{{ $eachdata->account }}</p>
+                <p class="account">{{ $eachdata->account }}</p>
             </td>
             <td>
-                <p><span class="span"></span>{{ $eachdata->username }}</p>
+                <p class="accname">{{ $eachdata->account_name }}</p>
             </td>
             <td>
-                <p><input name="password" type="password" value="{{$eachdata->password}}" style="border:none; background-color: #d9dadc; color:grey;" readonly></p>
-                 
+                <p class="username">{{ $eachdata->username }}</p>
             </td>
+            
             <td>
               <button type="button" class="btn btn-primary modal-view" data-id="{{$eachdata->id}}" data-toggle="modal" data-target="#myModal">
                 View password?
+              </button>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary modal-update" data-id="{{$eachdata->id}}" data-toggle="modal" data-target="#update">
+                Edit
+              </button>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary delete" onclick="return confirm('Are you sure, you want to delete this account?');" data-id="{{$eachdata->id}}">
+                Delete
               </button>
             </td>
           </tr>
@@ -115,7 +139,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <button type="button" class="close viewClose" data-dismiss="modal" aria-hidden="true">×</button>
         <h4 id="main-title" class="js-title-step">You need to retype your current password to view respective account's password</h4>
         <h4 id="pass-header"></h4>
       </div>
@@ -133,6 +157,7 @@
         
       </div>
       <div id="pass-show" style="color: red; text-align:center;"></div>
+      <div id="pass-pass" style="color: green; text-align:center;"></div>
 
       <div class="modal-footer">
         <input type="hidden" value="" id="data_id" />
@@ -143,6 +168,63 @@
   </div>
 </div>  <!--/modal-->
 
+ <!--account update-->
+<div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close updateClose" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 id="update-title" class="js-title-step">Edit your account details</h4>
+        <h4 id="update-header" style='color:red; margin-top:40px;'></h4>
+        <h4 id="success-header" style='color:green; margin-top:40px;'></h4>
+      </div>
+      {!! Form::open(array('class'=>'form-horizontal')) !!}
+      <div class="modal-body">
+        
+        <div class="form-group">
+          {!! Form::label('Username:',null,['class'=>'control-label col-sm-2']) !!}  
+          <div class="col-sm-10">
+            {!! Form::text('username',null,['id'=>'updateusername','class' => 'form-control']) !!}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {!! Form::label('Old Password:',null,['class'=>'control-label col-sm-2']) !!}
+          <div class="col-sm-10"> 
+            {!! Form::password('old_password',array('id'=>'updateoldpass','class' => 'form-control')) !!}
+          </div>
+        </div> 
+
+        <div class="form-group">
+          {!! Form::label('New Password:',null,['class'=>'control-label col-sm-2']) !!}
+          <div class="col-sm-10"> 
+            {!! Form::password('new_password',array('id'=>'updatenewpass','class' => 'form-control')) !!}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {!! Form::label('Remember Password:',null,['class'=>'control-label col-sm-2']) !!}
+          <div class="col-sm-10"> 
+            {!! Form::password('rem_password',array('id'=>'updaterempass','class' => 'form-control')) !!}
+          </div>
+        </div>          
+        
+
+      <div class="modal-footer">
+        <input type="hidden" value="" id="datahidden_id" />
+       <div class="form-group"> 
+          <div class="col-sm-offset-2 col-sm-5">
+            <button type="button" id="dataupdate" name="submit" class="btn btn-default">Update</button>
+            <button type="button" id="updatecancel" data-dismiss="modal" aria-hidden="true" class="btn btn-default">cancel</button>
+          </div>
+          
+        </div>          
+      </div>
+     {!! Form::close() !!}
+    </div>
+  </div>
+</div>  <!-- /modal -->
+
 
 <input type="hidden" value="{{url('/')}}" id="base_url" />
 <input type="hidden" value="{{csrf_token()}}" id="token" />
@@ -151,6 +233,9 @@
 
 @section('script')
 {!! HTML::script('assets/js/pswdview.js') !!}
+{!! HTML::script('assets/js/datasave.js') !!}
+{!! HTML::script('assets/js/dataupdate.js') !!}
+{!! HTML::script('assets/js/datadel.js') !!}
 <script type="text/javascript">
 $(document).ready(function(){	
 	$('#add-account').hide();
@@ -159,36 +244,7 @@ $(document).ready(function(){
 	$('#add').click(function(){
 		$('#add-account').show();
     $('#display-account').hide();
-	});
-
-	$('#save').click(function(){
-		// console.log('ji');
-		var url = $('#base_url').val();
-    	var token = $('#token').val();
-    	$.ajax({
-	    	url: url+'/accountdata/add',
-	    	type: 'POST',
-	    	data: {
-	    		account: $('#accountid').val(),
-	    		username: $('#username').val(),
-	    		password: $('#password').val(),
-	    		_token: token
-	    	},
-	    	success:function(response) {
-	 			  console.log(response);
-          if(response == 'done'){
-            $('#add-account').fadeOut();
-            $('.notify').html('One new account added!!');
-            $('.notify').fadeOut(4000);
-            window.location.reload();
-          }
-			},
-
-			error:function(response){
-			$('#error').html(response);
-			}
-	    });
-	});
+	});	
 
   $('#view').click(function(){
     $('#display-account').show();
@@ -200,6 +256,12 @@ $(document).ready(function(){
     var id = thisbtn.data("id");
     $('#data_id').val(id);
    });
+
+  $('.modal-update').click(function(){
+    var thisbtn = $(this);
+    var id = thisbtn.data("id");
+    $('#datahidden_id').val(id);
+   });  
 
 });
 </script>

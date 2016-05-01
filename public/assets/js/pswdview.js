@@ -1,6 +1,7 @@
 $(document).ready(function(){
 	
-    $('#pass-show').hide();        
+    $('#pass-show').hide();
+    $('#pass-pass').hide();         
     $('#pass-header').hide();
 
     $('#ok-view').click(function(){
@@ -17,7 +18,8 @@ $(document).ready(function(){
             {
                 if(response.msg == 'done'){
                     $('#pass-header').html("Your "+response.account+"'s password is").show();
-                    $('#pass-show').html('Password: '+response.pass).show();                   
+                    $('#pass-pass').html('Password: '+response.pass).show();  
+                    $('#pass-show').hide();                 
                     $('#ok-view').hide();
                     $('#main-close').hide();
                     $('.modal-body').hide();
@@ -36,10 +38,11 @@ $(document).ready(function(){
 
     });
 
-   $('.close').click(function(){
-        $('input[type="password"]').val("");
+   $('.viewClose').click(function(){
+        $('input[type="password"]').val(""); // to refresh the field everytime the modal is opened
         $('#pass-header').hide();
         $('#pass-show').hide();
+        $('#pass-pass').hide(); 
         
         $('#ok-view').show();
         $('#main-close').show();

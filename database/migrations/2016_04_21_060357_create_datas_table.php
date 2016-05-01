@@ -16,6 +16,7 @@ class CreateDatasTable extends Migration
             $table->increments('id');
             $table->integer('user_id');
             $table->string('account');
+            $table->string('account_name');
             $table->string('username');
             $table->string('password');
             $table->timestamps();

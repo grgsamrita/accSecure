@@ -11,6 +11,7 @@ use App\Data;
 use Hash;
 use Input;
 use Crypt;
+use validator;
 
 
 class AccountdataController extends Controller
@@ -33,20 +34,50 @@ class AccountdataController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function postAdd(AccountRequest $request, Data $accdata)
+    public function postAdd(Request $request, Data $accdata)
     {
         $accountdata = $request->all();
         $user = \Auth::user();
+        $validator = \Validator::make($request->all(), [
+            'account' => 'required|email',
+            'account_name' => 'required',
+            'username' => 'required',
+            'password' => 'required'
+        ]);
+         if ($validator->fails())
+        {
+            return response()->json(array(
+                    'success' => false,
+                    'errors' => $validator->getMessageBag()->toArray()
+
+            ), 400); // 400 being the HTTP code for an invalid request.
+        }   
+
         $accountdata =array(     
             'user_id' => $user->id,
             'account' => $request->input('account'),
+            'account_name' => $request->input('account_name'),
             'username' => $request->input('username'),
             'password' => \Crypt::encrypt($request->input('password')), //bcrypt($request->input('password')),
-            );      
+            );  
 
-        $accdata->insert($accountdata);      
-        return 'done';
-        
+        $data = Data::where('account','=',$request->input('account'))->get(); 
+        if(!count($data)){
+            $accdata->insert($accountdata);
+                    return 'done';
+        }
+        else{
+            foreach($data as $eachdata){
+                if($eachdata->account_name == $request->input('account_name')){
+                    return ['warning'=>'matches', 'msg'=>'This '.$request->input('account').' for '.$request->input('account_name').' already exists. Please enter another account for this account name.'];
+                    
+                }                
+                    $accdata->insert($accountdata);
+                    return 'done';
+               
+            
+            }  
+        }       
     }
 
     public function getViewpswd(Request $request, $id, $password){
@@ -64,6 +95,67 @@ class AccountdataController extends Controller
         return 'error';
 
 
+    }
+
+    public function getUpdate($id){
+        $data = Data::findOrFail($id);
+        return response(['msg' => 'done', 'username'=>$data->username]);
+    }
+
+     public function postUpdate(Request $request, Data $accdata)
+    {
+        $accountdata = $request->all();
+        $user = \Auth::user();
+        $validator = \Validator::make($request->all(), [
+            'username' => 'required',
+            'old_password' => 'required',
+            'new_password' => 'required',
+            'remember_password' => 'required'
+        ]);
+         if ($validator->fails())
+        {
+            return response()->json(array(
+                    'success' => false,
+                    'errors' => $validator->getMessageBag()->toArray()
+
+            ), 400); // 400 being the HTTP code for an invalid request.
+        }   
+        $accountdata = $accdata->find($request->input('id'));
+        if($accountdata){
+            // return $accountdata;
+            
+            if($request->input('old_password') != \Crypt::decrypt($accountdata->password) ){
+                
+                return ['warning'=>'not_match','message'=>'The password you entered does not match with your old password. Please retype the correct password']; 
+            }
+            if($request->input('new_password')!= $request->input('remember_password')) {
+                return ['warning'=>'incorrect','message'=>'The remember password does not match with your new password'];
+            }
+            
+            $accountdata->username = $request->input('username');
+            $accountdata->password = \Crypt::encrypt($request->input('new_password'));
+            $accountdata->save();
+            
+        }
+        
+        
+        return ['msg'=>'done','username'=>$request->input('username')];            
+        
+    }
+
+    //delete account data from view datas
+    public function getDestroy($id)
+    {
+        
+        $account = Data::findOrFail($id);
+        $account->delete();
+
+        return response(['msg' => 'Account deleted', 'status' => 'success']);
+        
+
+        // return 'success';
+        
+        
     }
    
 
