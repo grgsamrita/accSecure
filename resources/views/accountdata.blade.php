@@ -120,7 +120,7 @@
               </button>
             </td>
             <td>
-              <button type="button" class="btn btn-primary delete" onclick="return confirm('Are you sure, you want to delete this account?');" data-id="{{$eachdata->id}}">
+              <button type="button" class="btn btn-primary delete" data-id="{{$eachdata->id}}">
                 Delete
               </button>
             </td>
@@ -223,6 +223,7 @@
      {!! Form::close() !!}
     </div>
   </div>
+</div>
 </div>  <!-- /modal -->
 
 

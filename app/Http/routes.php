@@ -13,6 +13,10 @@
 
 Route::get('/', 'Auth\AuthController@getIndex');
 Route::controller('auth', 'Auth\AuthController');
+Route::controller('facebook', 'FacebookController');
+// Route::get('facebook/fblogin', 'FacebookController@getFblogin');
+// Route::get('facebook/fbcallback', 'FacebookController@getFbcallback');
+
 
 
 Route::group(['middleware' => 'auth'], function () {

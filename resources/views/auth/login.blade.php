@@ -43,6 +43,12 @@
         </div>
 
         <div class="form-group"> 
+          <div class="col-sm-offset-2 col-sm-10">            
+            <a href="{{URL::to('facebook/fblogin')}}"><label> Login with Facebook</label></a>      
+          </div>
+        </div>
+
+        <div class="form-group"> 
           <div class="col-sm-offset-2 col-sm-10">
             <button type="submit" name="submit" class="btn btn-default">Log In</button>
           </div>
